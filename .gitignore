@@ -1,0 +1,44 @@
+# Environment variables
+.env
+.env.local
+.env.production
+.env.*
+
+# Python virtual environment
+venv/
+.venv/
+env/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Logs
+logs/
+*.log
+
+# Evidence output files
+evidence/
+
+# Local database
+securepipe.db
+*.sqlite
+*.sqlite3
+
+# Uploaded/local temporary files
+uploads/
+tmp/
+temp/
+
+# IDE files
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Local tunnel configs
+ngrok.yml
