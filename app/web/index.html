@@ -1,0 +1,1479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SecurePipe Chat</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #ffffff;
+            color: #111827;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .app {
+            display: flex;
+            height: 100vh;
+            background: #ffffff;
+        }
+
+        .sidebar {
+            width: 285px;
+            background: #f7f7f8;
+            border-right: 1px solid #e5e7eb;
+            display: flex;
+            flex-direction: column;
+            padding: 14px;
+        }
+
+        .brand {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 14px;
+            color: #111827;
+        }
+
+        .brand span {
+            color: #2563eb;
+        }
+
+        .user-box {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 12px;
+            display: none;
+            color: #111827;
+        }
+
+        .user-box small {
+            color: #6b7280;
+        }
+
+        .new-chat-btn,
+        .auth-btn,
+        .send-btn,
+        .clear-file-btn {
+            border: none;
+            cursor: pointer;
+            border-radius: 10px;
+            padding: 11px 14px;
+            font-size: 14px;
+        }
+
+        .new-chat-btn {
+            background: #ffffff;
+            color: #111827;
+            border: 1px solid #e5e7eb;
+            text-align: left;
+            margin-bottom: 12px;
+        }
+
+        .new-chat-btn:hover {
+            background: #f3f4f6;
+        }
+
+        .conversation-list {
+            flex: 1;
+            overflow-y: auto;
+            padding-right: 3px;
+        }
+
+        .conversation-item {
+            padding: 10px 8px;
+            border-radius: 10px;
+            margin-bottom: 6px;
+            color: #374151;
+            cursor: pointer;
+            font-size: 14px;
+            line-height: 1.4;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 8px;
+        }
+
+        .conversation-item:hover {
+            background: #eeeeef;
+        }
+
+        .conversation-item.active {
+            background: #e5e7eb;
+            color: #111827;
+        }
+
+        .conversation-title {
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .delete-chat-btn {
+            background: transparent;
+            color: #9ca3af;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 3px 7px;
+            border-radius: 6px;
+            line-height: 1;
+        }
+
+        .delete-chat-btn:hover {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .logout-btn {
+            background: #ffffff;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+            border-radius: 10px;
+            padding: 10px;
+            cursor: pointer;
+            margin-top: 12px;
+            display: none;
+        }
+
+        .logout-btn:hover {
+            background: #fee2e2;
+        }
+
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            background: #ffffff;
+        }
+
+        .topbar {
+            height: 58px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 22px;
+            background: #ffffff;
+            flex-shrink: 0;
+        }
+
+        .topbar-title {
+            font-weight: bold;
+            color: #111827;
+        }
+
+        .privacy-pill {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.01em;
+            color: #1d4ed8;
+            background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+            border: 1px solid #bfdbfe;
+            padding: 8px 13px;
+            border-radius: 999px;
+            line-height: 1;
+            white-space: nowrap;
+            user-select: none;
+            box-shadow: 0 6px 18px rgba(37, 99, 235, 0.12);
+        }
+
+        .auth-screen {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 30px;
+            background: #ffffff;
+        }
+
+        .auth-card {
+            width: 430px;
+            max-width: 100%;
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 20px;
+            padding: 26px;
+            box-shadow: 0 24px 60px rgba(15, 23, 42, 0.08);
+        }
+
+        .auth-card h1 {
+            margin: 0 0 8px;
+            color: #111827;
+        }
+
+        .auth-card p {
+            margin: 0 0 20px;
+            color: #6b7280;
+            line-height: 1.5;
+        }
+
+        .auth-tabs {
+            display: flex;
+            background: #f3f4f6;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 4px;
+            margin-bottom: 16px;
+        }
+
+        .auth-tab {
+            flex: 1;
+            border: none;
+            background: transparent;
+            color: #6b7280;
+            padding: 10px;
+            border-radius: 9px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .auth-tab.active {
+            background: #ffffff;
+            color: #111827;
+            box-shadow: 0 3px 12px rgba(15, 23, 42, 0.08);
+        }
+
+        .auth-card input {
+            width: 100%;
+            background: #ffffff;
+            border: 1px solid #d1d5db;
+            color: #111827;
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 10px;
+            outline: none;
+        }
+
+        .auth-card input:focus {
+            border-color: #2563eb;
+        }
+
+        .auth-btn {
+            width: 100%;
+            background: #111827;
+            color: #ffffff;
+            margin-top: 8px;
+            font-weight: bold;
+        }
+
+        .auth-btn:hover {
+            background: #374151;
+        }
+
+        .auth-switch-note {
+            margin-top: 14px;
+            text-align: center;
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        .auth-link {
+            color: #2563eb;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .auth-message {
+            margin-top: 12px;
+            color: #b45309;
+            min-height: 20px;
+            font-size: 14px;
+        }
+
+        .chat-screen {
+            flex: 1;
+            display: none;
+            flex-direction: column;
+            min-height: 0;
+            background: #ffffff;
+            position: relative;
+        }
+
+        .messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 26px 20px 190px;
+            background: #ffffff;
+            scroll-behavior: auto;
+        }
+
+        .message-row {
+            display: flex;
+            margin-bottom: 18px;
+        }
+
+        .message-row.user {
+            justify-content: flex-start;
+        }
+
+        .message-row.assistant {
+            justify-content: flex-end;
+        }
+
+        .bubble {
+            max-width: 820px;
+            width: fit-content;
+            white-space: pre-wrap;
+            line-height: 1.75;
+            font-size: 16px;
+            border-radius: 18px;
+            padding: 16px 18px;
+            word-break: break-word;
+        }
+
+        .user .bubble {
+            background: #eff6ff;
+            color: #111827;
+            border: 1px solid #bfdbfe;
+            border-bottom-left-radius: 6px;
+            font-size: 17px;
+            padding: 14px 18px 18px;
+            min-width: 260px;
+        }
+
+        .assistant .bubble {
+            background: #f9fafb;
+            color: #111827;
+            border: 1px solid #e5e7eb;
+            border-bottom-right-radius: 6px;
+            box-shadow: 0 8px 28px rgba(15, 23, 42, 0.05);
+            font-size: 16px;
+            padding-top: 14px;
+        }
+
+        .message-label {
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            margin-bottom: 7px;
+            color: #6b7280;
+            text-transform: uppercase;
+        }
+
+        .user .message-label {
+            color: #1d4ed8;
+        }
+
+        .assistant .message-label {
+            color: #374151;
+        }
+
+        .message-text {
+            white-space: pre-wrap;
+        }
+
+        .rtl-text {
+            direction: rtl;
+            text-align: right;
+        }
+
+        .ltr-text {
+            direction: ltr;
+            text-align: left;
+        }
+
+        .safe-payload {
+            margin-top: 10px;
+            border-radius: 10px;
+            padding: 8px 10px;
+            font-size: 12px;
+            line-height: 1.45;
+            border: 1px solid;
+            max-width: 100%;
+        }
+
+        .safe-payload.danger {
+            background: #fef2f2;
+            border-color: #fecaca;
+            color: #b91c1c;
+        }
+
+        .safe-payload.safe {
+            background: #f0fdf4;
+            border-color: #bbf7d0;
+            color: #15803d;
+        }
+
+        .protected-payload-toggle {
+            margin-top: 10px;
+            border: 1px solid #d1d5db;
+            background: #ffffff;
+            color: #374151;
+            border-radius: 10px;
+            padding: 7px 10px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .protected-payload-toggle:hover {
+            background: #f3f4f6;
+        }
+
+        .protected-payload-toggle.danger {
+            border-color: #fecaca;
+            color: #b91c1c;
+            background: #fff7f7;
+        }
+
+        .protected-payload-toggle.safe {
+            border-color: #bbf7d0;
+            color: #15803d;
+            background: #f7fff9;
+        }
+
+        .safe-payload.hidden {
+            display: none;
+        }
+
+        .privacy-notice-box {
+            margin-top: 12px;
+            border: 1px solid #bfdbfe;
+            background: #eff6ff;
+            color: #1e3a8a;
+            border-radius: 14px;
+            padding: 12px 14px;
+            font-size: 13px;
+            line-height: 1.6;
+            max-width: 820px;
+            box-shadow: 0 8px 24px rgba(37, 99, 235, 0.08);
+        }
+
+        .privacy-notice-title {
+            font-weight: bold;
+            margin-bottom: 6px;
+            color: #1d4ed8;
+        }
+
+        .privacy-notice-body {
+            white-space: pre-wrap;
+        }
+
+        .composer-wrap {
+            position: fixed;
+            left: 285px;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to top, #ffffff 78%, rgba(255,255,255,0));
+            padding: 18px 22px 20px;
+            z-index: 50;
+        }
+
+        .composer {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #ffffff;
+            border: 1px solid #d1d5db;
+            border-radius: 28px;
+            box-shadow: 0 14px 38px rgba(15, 23, 42, 0.12);
+            padding: 8px 10px;
+        }
+
+        .composer-main {
+            display: flex;
+            align-items: flex-end;
+            gap: 10px;
+        }
+
+        .attach-btn {
+            width: 38px;
+            height: 38px;
+            min-width: 38px;
+            border-radius: 50%;
+            border: none;
+            background: #ffffff;
+            color: #111827;
+            font-size: 28px;
+            line-height: 1;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 2px;
+        }
+
+        .attach-btn:hover {
+            background: #f3f4f6;
+        }
+
+        .file-input-hidden {
+            display: none;
+        }
+
+        textarea {
+            flex: 1;
+            width: 100%;
+            min-height: 42px;
+            max-height: 160px;
+            resize: none;
+            background: transparent;
+            border: none;
+            outline: none;
+            color: #111827;
+            font-size: 18px;
+            line-height: 1.5;
+            padding: 9px 4px;
+            font-family: Arial, sans-serif;
+            overflow-y: auto;
+        }
+
+        textarea::placeholder {
+            color: #9ca3af;
+        }
+
+        .send-btn {
+            background: #111827;
+            color: #ffffff;
+            font-weight: bold;
+            min-width: 76px;
+            height: 38px;
+            padding: 0 16px;
+            border-radius: 999px;
+            margin-bottom: 2px;
+        }
+
+        .send-btn:hover {
+            background: #374151;
+        }
+
+        .file-preview {
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            max-width: 900px;
+            margin: 8px auto 0;
+            padding: 8px 12px;
+            border: 1px solid #e5e7eb;
+            background: #f9fafb;
+            border-radius: 14px;
+            color: #374151;
+            font-size: 13px;
+        }
+
+        .file-preview.visible {
+            display: flex;
+        }
+
+        .file-name {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .clear-file-btn {
+            background: transparent;
+            color: #dc2626;
+            border: none;
+            padding: 4px 8px;
+            font-size: 13px;
+        }
+
+        .clear-file-btn:hover {
+            background: #fee2e2;
+        }
+
+        .status {
+            max-width: 900px;
+            margin: 8px auto 0;
+            color: #b45309;
+            font-size: 13px;
+            min-height: 18px;
+            padding-left: 18px;
+        }
+
+        .empty-state {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6b7280;
+            text-align: center;
+            padding: 30px;
+        }
+
+        .empty-state h2 {
+            color: #111827;
+            margin-bottom: 8px;
+        }
+
+        @media (max-width: 850px) {
+            .sidebar {
+                width: 230px;
+            }
+
+            .composer-wrap {
+                left: 230px;
+            }
+
+            .privacy-pill {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="app">
+    <aside class="sidebar">
+        <div class="brand">Secure<span>Pipe</span></div>
+
+        <div id="userBox" class="user-box">
+            <div id="currentUsername"></div>
+            <small id="currentEmail"></small>
+        </div>
+
+        <button id="newChatBtn" class="new-chat-btn" onclick="newChat()" style="display:none;">+ New Chat</button>
+
+        <div id="conversationList" class="conversation-list"></div>
+
+        <button id="logoutBtn" class="logout-btn" onclick="logout()">Logout</button>
+    </aside>
+
+    <main class="main">
+        <div class="topbar">
+            <div class="topbar-title">Secure AI Chat</div>
+            <div class="privacy-pill">🔒 Data Protection Active</div>
+        </div>
+
+        <section id="authScreen" class="auth-screen">
+            <div class="auth-card">
+                <h1 id="authTitle">Welcome back</h1>
+                <p id="authSubtitle">Login to continue your secure AI conversations.</p>
+
+                <div class="auth-tabs">
+                    <button id="loginTab" class="auth-tab active" onclick="setAuthMode('login')">Login</button>
+                    <button id="registerTab" class="auth-tab" onclick="setAuthMode('register')">Create Account</button>
+                </div>
+
+                <input id="username" placeholder="Username">
+                <input id="email" placeholder="Email" style="display:none;">
+                <input id="password" type="password" placeholder="Password">
+
+                <button id="authSubmitBtn" class="auth-btn" onclick="submitAuth()">Login</button>
+
+                <div id="authSwitchNote" class="auth-switch-note">
+                    New to SecurePipe?
+                    <span class="auth-link" onclick="setAuthMode('register')">Create an account</span>
+                </div>
+
+                <div id="authMessage" class="auth-message"></div>
+            </div>
+        </section>
+
+        <section id="chatScreen" class="chat-screen">
+            <div id="messages" class="messages">
+                <div class="empty-state">
+                    <div>
+                        <h2>Start a secure conversation</h2>
+                        <p>Your sensitive data will be masked before the AI receives your request.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="composer-wrap">
+                <div class="composer">
+                    <div class="composer-main">
+                        <label for="fileInput" class="attach-btn" title="Attach file">+</label>
+                        <input id="fileInput" class="file-input-hidden" type="file" accept=".pdf,.txt,.docx">
+
+                        <textarea id="messageInput" placeholder="Message SecurePipe"></textarea>
+
+                        <button class="send-btn" onclick="sendMessage()">Send</button>
+                    </div>
+                </div>
+
+                <div id="filePreview" class="file-preview">
+                    <span id="fileName" class="file-name">No file selected</span>
+                    <button class="clear-file-btn" onclick="clearFile()">Remove</button>
+                </div>
+
+                <div id="status" class="status">Ready.</div>
+            </div>
+        </section>
+    </main>
+</div>
+
+<script>
+    let currentUser = null;
+    let currentConversationId = null;
+    let conversations = [];
+    let authMode = "login";
+    let isSending = false;
+
+    let userWantsAutoScroll = true;
+    let manualScrollPauseUntil = 0;
+
+    function getMessagesContainer() {
+        return document.getElementById("messages");
+    }
+
+    function isUserNearBottom(container, threshold = 120) {
+        if (!container) return true;
+
+        const distanceFromBottom =
+            container.scrollHeight - container.scrollTop - container.clientHeight;
+
+        return distanceFromBottom <= threshold;
+    }
+
+    function pauseAutoScroll() {
+        userWantsAutoScroll = false;
+        manualScrollPauseUntil = Date.now() + 1200;
+    }
+
+    function scrollToBottom(force = false) {
+        const container = getMessagesContainer();
+        if (!container) return;
+
+        if (force) {
+            container.scrollTop = container.scrollHeight;
+            userWantsAutoScroll = true;
+            return;
+        }
+
+        if (Date.now() < manualScrollPauseUntil) {
+            return;
+        }
+
+        if (userWantsAutoScroll && isUserNearBottom(container, 180)) {
+            container.scrollTop = container.scrollHeight;
+        }
+    }
+
+    function setupSmartScrollTracking() {
+        const container = getMessagesContainer();
+        if (!container) return;
+
+        container.addEventListener("wheel", () => {
+            pauseAutoScroll();
+        }, { passive: true });
+
+        container.addEventListener("touchstart", () => {
+            pauseAutoScroll();
+        }, { passive: true });
+
+        container.addEventListener("touchmove", () => {
+            pauseAutoScroll();
+        }, { passive: true });
+
+        container.addEventListener("mousedown", () => {
+            pauseAutoScroll();
+        });
+
+        container.addEventListener("scroll", () => {
+            if (isUserNearBottom(container, 80)) {
+                userWantsAutoScroll = true;
+                manualScrollPauseUntil = 0;
+            }
+        });
+
+        window.addEventListener("keydown", (event) => {
+            const scrollKeys = ["ArrowUp", "PageUp", "Home", "ArrowDown", "PageDown"];
+            if (scrollKeys.includes(event.key)) {
+                pauseAutoScroll();
+            }
+        });
+    }
+
+    function typeText(element, text, speed = 18) {
+        const container = getMessagesContainer();
+        element.innerText = "";
+
+        let index = 0;
+        let typingTimer = null;
+
+        function writeNextCharacter() {
+            if (index >= text.length) {
+                typingTimer = null;
+                return;
+            }
+
+            const canAutoScroll =
+                Date.now() >= manualScrollPauseUntil &&
+                userWantsAutoScroll &&
+                isUserNearBottom(container, 180);
+
+            element.innerText += text.charAt(index);
+            index++;
+
+            if (canAutoScroll) {
+                container.scrollTop = container.scrollHeight;
+            }
+
+            typingTimer = setTimeout(writeNextCharacter, speed);
+        }
+
+        writeNextCharacter();
+    }
+
+    function setAuthMode(mode) {
+        authMode = mode;
+
+        const loginTab = document.getElementById("loginTab");
+        const registerTab = document.getElementById("registerTab");
+        const emailInput = document.getElementById("email");
+        const authTitle = document.getElementById("authTitle");
+        const authSubtitle = document.getElementById("authSubtitle");
+        const submitBtn = document.getElementById("authSubmitBtn");
+        const switchNote = document.getElementById("authSwitchNote");
+
+        document.getElementById("authMessage").innerText = "";
+
+        if (mode === "login") {
+            loginTab.classList.add("active");
+            registerTab.classList.remove("active");
+            emailInput.style.display = "none";
+            authTitle.innerText = "Welcome back";
+            authSubtitle.innerText = "Login to continue your secure AI conversations.";
+            submitBtn.innerText = "Login";
+            switchNote.innerHTML = 'New to SecurePipe? <span class="auth-link" onclick="setAuthMode(\'register\')">Create an account</span>';
+        } else {
+            registerTab.classList.add("active");
+            loginTab.classList.remove("active");
+            emailInput.style.display = "block";
+            authTitle.innerText = "Create your account";
+            authSubtitle.innerText = "Start using AI safely with protected conversations.";
+            submitBtn.innerText = "Create Account";
+            switchNote.innerHTML = 'Already have an account? <span class="auth-link" onclick="setAuthMode(\'login\')">Login</span>';
+        }
+    }
+
+    function submitAuth() {
+        if (authMode === "login") {
+            login();
+        } else {
+            register();
+        }
+    }
+
+    function updateFileName() {
+        const fileInput = document.getElementById("fileInput");
+        const fileName = document.getElementById("fileName");
+        const filePreview = document.getElementById("filePreview");
+
+        if (fileInput.files && fileInput.files.length > 0) {
+            fileName.innerText = fileInput.files[0].name;
+            filePreview.classList.add("visible");
+        } else {
+            fileName.innerText = "No file selected";
+            filePreview.classList.remove("visible");
+        }
+    }
+
+    function autoResizeMessageInput() {
+        const textarea = document.getElementById("messageInput");
+        textarea.style.height = "auto";
+        textarea.style.height = Math.min(textarea.scrollHeight, 160) + "px";
+    }
+
+    function resetMessageInputHeight() {
+        const textarea = document.getElementById("messageInput");
+        textarea.style.height = "42px";
+    }
+
+    function handleMessageInputKeydown(event) {
+        if (event.key === "Enter" && !event.shiftKey) {
+            event.preventDefault();
+            sendMessage();
+        }
+    }
+
+    function isArabicText(text) {
+        return /[\u0600-\u06FF]/.test(text || "");
+    }
+
+    function getTextDirectionClass(text) {
+        return isArabicText(text) ? "rtl-text" : "ltr-text";
+    }
+
+    function splitPrivacyNotice(text) {
+        const content = text || "";
+
+        const arabicMarker = "تنبيه خصوصية:";
+        const englishMarker = "Privacy Notice:";
+
+        let markerIndex = -1;
+
+        const arabicIndex = content.indexOf(arabicMarker);
+        const englishIndex = content.indexOf(englishMarker);
+
+        if (arabicIndex !== -1) {
+            markerIndex = arabicIndex;
+        } else if (englishIndex !== -1) {
+            markerIndex = englishIndex;
+        }
+
+        if (markerIndex === -1) {
+            return {
+                answer: content,
+                notice: ""
+            };
+        }
+
+        return {
+            answer: content.slice(0, markerIndex).trim(),
+            notice: content.slice(markerIndex).trim()
+        };
+    }
+
+    function createPrivacyNoticeBox(noticeText) {
+        const noticeBox = document.createElement("div");
+        noticeBox.className = `privacy-notice-box ${getTextDirectionClass(noticeText)}`;
+
+        const title = document.createElement("div");
+        title.className = "privacy-notice-title";
+        title.innerText = isArabicText(noticeText) ? "تنبيه خصوصية" : "Privacy Notice";
+
+        const body = document.createElement("div");
+        body.className = "privacy-notice-body";
+
+        let cleanNotice = noticeText || "";
+        cleanNotice = cleanNotice.replace(/^تنبيه خصوصية:\s*/i, "");
+        cleanNotice = cleanNotice.replace(/^Privacy Notice:\s*/i, "");
+
+        body.innerText = cleanNotice;
+
+        noticeBox.appendChild(title);
+        noticeBox.appendChild(body);
+
+        return noticeBox;
+    }
+
+    function toggleProtectedPayload(payloadId, button) {
+        const payload = document.getElementById(payloadId);
+        if (!payload) return;
+
+        const isHidden = payload.classList.contains("hidden");
+
+        if (isHidden) {
+            payload.classList.remove("hidden");
+            button.innerText = "Hide protected data";
+        } else {
+            payload.classList.add("hidden");
+            button.innerText = "View protected data";
+        }
+    }
+
+    function setAuthMessage(message) {
+        document.getElementById("authMessage").innerText = message;
+    }
+
+    function setStatus(message) {
+        document.getElementById("status").innerText = message;
+    }
+
+    function saveSession(user) {
+        localStorage.setItem("securepipe_user", JSON.stringify(user));
+    }
+
+    function loadSession() {
+        const saved = localStorage.getItem("securepipe_user");
+        if (saved) {
+            currentUser = JSON.parse(saved);
+            showChat();
+            loadConversations();
+        }
+    }
+
+    function logout() {
+        localStorage.removeItem("securepipe_user");
+        currentUser = null;
+        currentConversationId = null;
+        conversations = [];
+
+        document.getElementById("authScreen").style.display = "flex";
+        document.getElementById("chatScreen").style.display = "none";
+        document.getElementById("userBox").style.display = "none";
+        document.getElementById("newChatBtn").style.display = "none";
+        document.getElementById("logoutBtn").style.display = "none";
+        document.getElementById("conversationList").innerHTML = "";
+
+        setAuthMode("login");
+    }
+
+    function showChat() {
+        document.getElementById("authScreen").style.display = "none";
+        document.getElementById("chatScreen").style.display = "flex";
+
+        document.getElementById("userBox").style.display = "block";
+        document.getElementById("newChatBtn").style.display = "block";
+        document.getElementById("logoutBtn").style.display = "block";
+
+        document.getElementById("currentUsername").innerText = currentUser.username;
+        document.getElementById("currentEmail").innerText = currentUser.email;
+    }
+
+    async function register() {
+        const username = document.getElementById("username").value.trim();
+        const email = document.getElementById("email").value.trim();
+        const password = document.getElementById("password").value;
+
+        if (!username || !email || !password) {
+            setAuthMessage("Username, email, and password are required.");
+            return;
+        }
+
+        try {
+            const response = await fetch("/auth/register", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({username, email, password})
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.detail || "Registration failed.");
+            }
+
+            currentUser = data.user;
+            saveSession(currentUser);
+            showChat();
+            await loadConversations();
+            setAuthMessage("");
+        } catch (error) {
+            setAuthMessage(error.message);
+        }
+    }
+
+    async function login() {
+        const username = document.getElementById("username").value.trim();
+        const password = document.getElementById("password").value;
+
+        if (!username || !password) {
+            setAuthMessage("Username and password are required.");
+            return;
+        }
+
+        try {
+            const response = await fetch("/auth/login", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({username, password})
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.detail || "Login failed.");
+            }
+
+            currentUser = data.user;
+            saveSession(currentUser);
+            showChat();
+            await loadConversations();
+            setAuthMessage("");
+        } catch (error) {
+            setAuthMessage(error.message);
+        }
+    }
+
+    async function loadConversations() {
+        if (!currentUser) return;
+
+        try {
+            const response = await fetch(`/conversations/user/${currentUser.id}`);
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.detail || "Could not load conversations.");
+            }
+
+            conversations = data;
+            renderConversations();
+
+            if (conversations.length > 0 && currentConversationId === null) {
+                await openConversation(conversations[0].id);
+            } else if (conversations.length === 0) {
+                renderEmptyState();
+            }
+        } catch (error) {
+            setStatus(error.message);
+        }
+    }
+
+    function renderConversations() {
+        const list = document.getElementById("conversationList");
+        list.innerHTML = "";
+
+        conversations.forEach(conv => {
+            const item = document.createElement("div");
+            item.className = "conversation-item" + (conv.id === currentConversationId ? " active" : "");
+
+            const title = document.createElement("div");
+            title.className = "conversation-title";
+            title.innerText = conv.title;
+            title.onclick = () => openConversation(conv.id);
+
+            const deleteBtn = document.createElement("button");
+            deleteBtn.className = "delete-chat-btn";
+            deleteBtn.innerText = "×";
+            deleteBtn.title = "Delete conversation";
+            deleteBtn.onclick = (event) => {
+                event.stopPropagation();
+                deleteConversation(conv.id);
+            };
+
+            item.appendChild(title);
+            item.appendChild(deleteBtn);
+            list.appendChild(item);
+        });
+    }
+
+    async function newChat() {
+        if (!currentUser) return;
+
+        try {
+            const response = await fetch(`/conversations/${currentUser.id}`, {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({title: "New Secure Chat"})
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.detail || "Could not create conversation.");
+            }
+
+            currentConversationId = data.id;
+            await loadConversations();
+            renderEmptyState();
+            setStatus("New chat created.");
+        } catch (error) {
+            setStatus(error.message);
+        }
+    }
+
+    async function deleteConversation(conversationId) {
+        const confirmed = confirm("Are you sure you want to delete this conversation?");
+        if (!confirmed) return;
+
+        try {
+            const response = await fetch(`/conversations/${conversationId}`, {
+                method: "DELETE"
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.detail || "Could not delete conversation.");
+            }
+
+            if (currentConversationId === conversationId) {
+                currentConversationId = null;
+                renderEmptyState();
+            }
+
+            await loadConversations();
+            setStatus("Conversation deleted.");
+        } catch (error) {
+            setStatus(error.message);
+        }
+    }
+
+    async function openConversation(conversationId, animateLastAssistant = false) {
+        currentConversationId = conversationId;
+        userWantsAutoScroll = true;
+        renderConversations();
+
+        try {
+            const response = await fetch(`/conversations/${conversationId}/messages`);
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.detail || "Could not load messages.");
+            }
+
+            renderMessages(data.messages, animateLastAssistant);
+        } catch (error) {
+            setStatus(error.message);
+        }
+    }
+
+    function renderEmptyState() {
+        document.getElementById("messages").innerHTML = `
+            <div class="empty-state">
+                <div>
+                    <h2>Start a secure conversation</h2>
+                    <p>Your sensitive data will be masked before the AI receives your request.</p>
+                </div>
+            </div>
+        `;
+    }
+
+    function renderMessages(messages, animateLastAssistant = false) {
+        const container = document.getElementById("messages");
+        container.innerHTML = "";
+
+        if (!messages || messages.length === 0) {
+            renderEmptyState();
+            return;
+        }
+
+        const lastAssistantIndex = [...messages]
+            .map((msg, index) => ({ msg, index }))
+            .filter(item => item.msg.role === "assistant")
+            .map(item => item.index)
+            .pop();
+
+        messages.forEach((msg, index) => {
+            if (msg.role === "user") {
+                addMessageToUI(
+                    "user",
+                    msg.original_text,
+                    msg.sanitized_text,
+                    msg.evidence_file,
+                    msg.has_sensitive_data,
+                    false
+                );
+            } else {
+                const shouldAnimate = animateLastAssistant && index === lastAssistantIndex;
+
+                addMessageToUI(
+                    "assistant",
+                    msg.response_text,
+                    null,
+                    msg.evidence_file,
+                    false,
+                    shouldAnimate
+                );
+            }
+        });
+
+        scrollToBottom(true);
+    }
+
+    function addMessageToUI(
+        role,
+        text,
+        sanitizedText = null,
+        evidenceFile = null,
+        hasSensitiveData = false,
+        animate = false
+    ) {
+        const container = document.getElementById("messages");
+
+        const row = document.createElement("div");
+        row.className = `message-row ${role}`;
+
+        const bubble = document.createElement("div");
+
+        let displayText = text || "";
+        let privacyNoticeText = "";
+
+        if (role === "assistant") {
+            const splitResult = splitPrivacyNotice(displayText);
+            displayText = splitResult.answer;
+            privacyNoticeText = splitResult.notice;
+        }
+
+        bubble.className = `bubble ${getTextDirectionClass(displayText)}`;
+
+        const label = document.createElement("div");
+        label.className = "message-label";
+        label.innerText = role === "user" ? "You" : "SecurePipe";
+        bubble.appendChild(label);
+
+        const messageText = document.createElement("div");
+        messageText.className = `message-text ${getTextDirectionClass(displayText)}`;
+
+        if (animate && role === "assistant") {
+            typeText(messageText, displayText || "", 16);
+        } else {
+            messageText.innerText = displayText || "";
+        }
+
+        bubble.appendChild(messageText);
+
+        if (role === "user" && sanitizedText) {
+            const payloadClass = hasSensitiveData ? "danger" : "safe";
+            const label = hasSensitiveData
+                ? "Protected Payload - Sensitive data was masked:"
+                : "Protected Payload - No sensitive data detected:";
+
+            const payloadId =
+                "protectedPayload_" +
+                Date.now() +
+                "_" +
+                Math.random().toString(16).slice(2);
+
+            const toggleButton = document.createElement("button");
+            toggleButton.className = `protected-payload-toggle ${payloadClass}`;
+            toggleButton.type = "button";
+            toggleButton.innerText = "View protected data";
+            toggleButton.onclick = () => toggleProtectedPayload(payloadId, toggleButton);
+
+            const safe = document.createElement("div");
+            safe.id = payloadId;
+            safe.className = `safe-payload ${payloadClass} ${getTextDirectionClass(sanitizedText)} hidden`;
+            safe.innerText = label + "\n" + sanitizedText;
+
+            bubble.appendChild(toggleButton);
+            bubble.appendChild(safe);
+        }
+
+        row.appendChild(bubble);
+        container.appendChild(row);
+
+        if (role === "assistant" && privacyNoticeText) {
+            const noticeRow = document.createElement("div");
+            noticeRow.className = "message-row assistant";
+
+            const noticeBox = createPrivacyNoticeBox(privacyNoticeText);
+            noticeRow.appendChild(noticeBox);
+
+            container.appendChild(noticeRow);
+        }
+
+        if (role === "user") {
+            userWantsAutoScroll = true;
+            scrollToBottom(true);
+        } else if (!animate) {
+            scrollToBottom(false);
+        }
+    }
+
+    async function sendMessage() {
+        if (isSending) {
+            return;
+        }
+
+        if (!currentUser) {
+            setStatus("Please log in first.");
+            return;
+        }
+
+        const messageInput = document.getElementById("messageInput");
+        const fileInput = document.getElementById("fileInput");
+
+        const text = messageInput.value.trim();
+        const file = fileInput.files[0];
+
+        if (!text && !file) {
+            setStatus("Please enter a message or attach a file.");
+            return;
+        }
+
+        isSending = true;
+
+        if (currentConversationId === null) {
+            await newChat();
+        }
+
+        const outgoingText = text;
+        const outgoingFile = file;
+
+        messageInput.value = "";
+        resetMessageInputHeight();
+        clearFile();
+
+        userWantsAutoScroll = true;
+
+        if (outgoingText) {
+            addMessageToUI(
+                "user",
+                outgoingText,
+                null,
+                null,
+                false,
+                false
+            );
+        } else if (outgoingFile) {
+            addMessageToUI(
+                "user",
+                `Attached file: ${outgoingFile.name}`,
+                null,
+                null,
+                false,
+                false
+            );
+        }
+
+        setStatus("Processing securely...");
+
+        try {
+            let response;
+
+            if (outgoingFile) {
+                const formData = new FormData();
+                formData.append("message", outgoingText);
+                formData.append("file", outgoingFile);
+                formData.append("user_id", currentUser.id);
+
+                if (currentConversationId !== null) {
+                    formData.append("conversation_id", currentConversationId);
+                }
+
+                response = await fetch("/process/with-file", {
+                    method: "POST",
+                    body: formData
+                });
+            } else {
+                response = await fetch("/process/", {
+                    method: "POST",
+                    headers: {"Content-Type": "application/json"},
+                    body: JSON.stringify({
+                        text: outgoingText,
+                        user_id: currentUser.id,
+                        conversation_id: currentConversationId
+                    })
+                });
+            }
+
+            const rawText = await response.text();
+            let data;
+
+            try {
+                data = JSON.parse(rawText);
+            } catch (error) {
+                throw new Error(rawText || "Server returned a non-JSON response.");
+            }
+
+            if (!response.ok) {
+                throw new Error(data.detail || "Processing failed.");
+            }
+
+            currentConversationId = data.conversation_id;
+
+            await loadConversations();
+            await openConversation(currentConversationId, true);
+
+            setStatus("Done.");
+        } catch (error) {
+            setStatus("Error: " + error.message);
+        } finally {
+            isSending = false;
+        }
+    }
+
+    function clearFile() {
+        document.getElementById("fileInput").value = "";
+        document.getElementById("fileName").innerText = "No file selected";
+        document.getElementById("filePreview").classList.remove("visible");
+    }
+
+    document.getElementById("fileInput").addEventListener("change", updateFileName);
+    document.getElementById("messageInput").addEventListener("input", autoResizeMessageInput);
+    document.getElementById("messageInput").addEventListener("keydown", handleMessageInputKeydown);
+
+    setupSmartScrollTracking();
+    setAuthMode("login");
+    loadSession();
+</script>
+</body>
+</html>

@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SecurePipe Admin</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f9fafb;
+            color: #111827;
+        }
+
+        .page {
+            min-height: 100vh;
+            padding: 30px;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 26px;
+        }
+
+        .brand {
+            font-size: 26px;
+            font-weight: bold;
+        }
+
+        .brand span {
+            color: #2563eb;
+        }
+
+        .subtitle {
+            color: #6b7280;
+            margin-top: 6px;
+            font-size: 14px;
+        }
+
+        .back-link {
+            text-decoration: none;
+            color: #2563eb;
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            padding: 10px 14px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .login-card {
+            max-width: 460px;
+            margin: 90px auto 0;
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 20px;
+            padding: 26px;
+            box-shadow: 0 20px 55px rgba(15, 23, 42, 0.08);
+        }
+
+        .login-card h2 {
+            margin: 0 0 8px;
+            color: #111827;
+        }
+
+        .login-card p {
+            margin: 0 0 18px;
+            color: #6b7280;
+            line-height: 1.5;
+            font-size: 14px;
+        }
+
+        .admin-input {
+            width: 100%;
+            border: 1px solid #d1d5db;
+            border-radius: 12px;
+            padding: 12px;
+            font-size: 15px;
+            outline: none;
+            margin-bottom: 12px;
+        }
+
+        .admin-input:focus {
+            border-color: #2563eb;
+        }
+
+        .admin-btn {
+            border: none;
+            background: #111827;
+            color: #ffffff;
+            padding: 11px 15px;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: bold;
+            width: 100%;
+        }
+
+        .admin-btn:hover {
+            background: #374151;
+        }
+
+        .dashboard {
+            display: none;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin: 0 0 14px;
+            color: #111827;
+        }
+
+        .section-subtitle {
+            color: #6b7280;
+            font-size: 13px;
+            margin-top: -8px;
+            margin-bottom: 16px;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 18px;
+            margin-bottom: 26px;
+        }
+
+        .cards.evidence-cards {
+            grid-template-columns: repeat(5, minmax(0, 1fr));
+        }
+
+        .card {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 18px;
+            padding: 22px;
+            box-shadow: 0 14px 34px rgba(15, 23, 42, 0.06);
+        }
+
+        .card-title {
+            color: #6b7280;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .card-value {
+            font-size: 38px;
+            font-weight: bold;
+            color: #111827;
+            word-break: break-word;
+        }
+
+        .card-value.small {
+            font-size: 16px;
+            line-height: 1.5;
+        }
+
+        .card-value.medium {
+            font-size: 24px;
+        }
+
+        .evidence-card {
+            border-color: #bfdbfe;
+            background: #ffffff;
+        }
+
+        .evidence-card .card-title {
+            color: #1d4ed8;
+        }
+
+        .open-evidence-btn {
+            margin-top: 12px;
+            border: none;
+            background: #1d4ed8;
+            color: #ffffff;
+            padding: 9px 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 13px;
+            width: 100%;
+        }
+
+        .open-evidence-btn:hover {
+            background: #1e40af;
+        }
+
+        .panel {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 18px;
+            box-shadow: 0 14px 34px rgba(15, 23, 42, 0.06);
+            overflow: hidden;
+        }
+
+        .panel-header {
+            padding: 18px 20px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .panel-title {
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .refresh-btn,
+        .logout-btn,
+        .clear-btn,
+        .delete-btn {
+            border: none;
+            padding: 10px 14px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .refresh-btn {
+            background: #111827;
+            color: #ffffff;
+        }
+
+        .refresh-btn:hover {
+            background: #374151;
+        }
+
+        .logout-btn {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .logout-btn:hover {
+            background: #fecaca;
+        }
+
+        .clear-btn {
+            background: #7f1d1d;
+            color: #ffffff;
+        }
+
+        .clear-btn:hover {
+            background: #991b1b;
+        }
+
+        .delete-btn {
+            background: #fee2e2;
+            color: #dc2626;
+            padding: 7px 10px;
+            font-size: 13px;
+        }
+
+        .delete-btn:hover {
+            background: #fecaca;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            background: #f9fafb;
+            color: #374151;
+            text-align: left;
+            font-size: 13px;
+            padding: 14px 16px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        td {
+            padding: 14px 16px;
+            border-bottom: 1px solid #f3f4f6;
+            font-size: 14px;
+            color: #111827;
+        }
+
+        tr:hover td {
+            background: #f9fafb;
+        }
+
+        .empty {
+            padding: 24px;
+            color: #6b7280;
+            text-align: center;
+        }
+
+        .status {
+            margin-top: 14px;
+            color: #b45309;
+            font-size: 14px;
+            min-height: 20px;
+        }
+
+        .security-note {
+            margin-top: 10px;
+            color: #6b7280;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .divider {
+            height: 1px;
+            background: #e5e7eb;
+            margin: 28px 0;
+        }
+
+        .modal-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.55);
+            z-index: 100;
+            padding: 30px;
+        }
+
+        .modal {
+            background: #ffffff;
+            max-width: 980px;
+            max-height: 88vh;
+            margin: 30px auto;
+            border-radius: 18px;
+            box-shadow: 0 24px 70px rgba(15, 23, 42, 0.28);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-header {
+            padding: 18px 20px;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .modal-title {
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .close-modal-btn {
+            border: none;
+            background: #fee2e2;
+            color: #dc2626;
+            padding: 8px 12px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .close-modal-btn:hover {
+            background: #fecaca;
+        }
+
+        .evidence-json {
+            margin: 0;
+            padding: 20px;
+            overflow: auto;
+            background: #0f172a;
+            color: #e5e7eb;
+            font-size: 13px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            max-height: 72vh;
+        }
+
+        @media (max-width: 1100px) {
+            .cards.evidence-cards {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 850px) {
+            .cards,
+            .cards.evidence-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 14px;
+            }
+
+            .page {
+                padding: 18px;
+            }
+
+            .panel-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .actions {
+                width: 100%;
+            }
+
+            .refresh-btn,
+            .logout-btn,
+            .clear-btn {
+                flex: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="page">
+    <div class="header">
+        <div>
+            <div class="brand">Secure<span>Pipe</span> Admin</div>
+            <div class="subtitle">Protected dashboard for monitoring users, conversations, messages, and evidence logs.</div>
+        </div>
+
+        <a class="back-link" href="/">Back to Chat</a>
+    </div>
+
+    <div id="loginCard" class="login-card">
+        <h2>Admin Access</h2>
+        <p>Enter the admin key to view SecurePipe monitoring statistics.</p>
+
+        <input
+            id="adminKeyInput"
+            class="admin-input"
+            type="password"
+            placeholder="Admin Key"
+            onkeydown="handleAdminKeydown(event)"
+        >
+
+        <button class="admin-btn" onclick="loginAdmin()">Open Dashboard</button>
+
+        <div class="security-note">
+            The dashboard API requires an admin key and does not expose password hashes.
+        </div>
+
+        <div id="loginStatus" class="status"></div>
+    </div>
+
+    <div id="dashboard" class="dashboard">
+        <div class="section-title">Database Overview</div>
+        <div class="section-subtitle">Basic SQLite records stored by SecurePipe.</div>
+
+        <div class="cards">
+            <div class="card">
+                <div class="card-title">Users Count</div>
+                <div id="usersCount" class="card-value">0</div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Conversations Count</div>
+                <div id="conversationsCount" class="card-value">0</div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">Messages Count</div>
+                <div id="messagesCount" class="card-value">0</div>
+            </div>
+        </div>
+
+        <div class="section-title">Evidence Dashboard</div>
+        <div class="section-subtitle">Audit trail summary generated from evidence JSON files.</div>
+
+        <div class="cards evidence-cards">
+            <div class="card evidence-card">
+                <div class="card-title">Evidence Files</div>
+                <div id="evidenceFilesCount" class="card-value">0</div>
+            </div>
+
+            <div class="card evidence-card">
+                <div class="card-title">Sensitive Requests</div>
+                <div id="sensitiveRequestsCount" class="card-value">0</div>
+            </div>
+
+            <div class="card evidence-card">
+                <div class="card-title">Most Detected Type</div>
+                <div id="mostDetectedType" class="card-value medium">-</div>
+            </div>
+
+            <div class="card evidence-card">
+                <div class="card-title">Most Detected Count</div>
+                <div id="mostDetectedTypeCount" class="card-value">0</div>
+            </div>
+
+            <div class="card evidence-card">
+                <div class="card-title">Latest Evidence File</div>
+                <div id="latestEvidenceFile" class="card-value small">-</div>
+                <button class="open-evidence-btn" onclick="openLatestEvidence()">
+                    Open Latest Evidence
+                </button>
+            </div>
+        </div>
+
+        <div class="cards">
+            <div class="card evidence-card">
+                <div class="card-title">Latest Evidence Time</div>
+                <div id="latestEvidenceTimestamp" class="card-value medium">-</div>
+            </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="panel">
+            <div class="panel-header">
+                <div class="panel-title">Users Table</div>
+
+                <div class="actions">
+                    <button class="refresh-btn" onclick="loadDashboard()">Refresh</button>
+                    <button class="clear-btn" onclick="clearTestData()">Clear All Test Data</button>
+                    <button class="logout-btn" onclick="logoutAdmin()">Lock</button>
+                </div>
+            </div>
+
+            <div id="usersTableWrap"></div>
+        </div>
+
+        <div id="status" class="status"></div>
+    </div>
+</div>
+
+<div id="evidenceModalBackdrop" class="modal-backdrop">
+    <div class="modal">
+        <div class="modal-header">
+            <div id="evidenceModalTitle" class="modal-title">Latest Evidence</div>
+            <button class="close-modal-btn" onclick="closeEvidenceModal()">Close</button>
+        </div>
+
+        <pre id="evidenceJsonViewer" class="evidence-json">Loading...</pre>
+    </div>
+</div>
+
+<script>
+    let adminKey = sessionStorage.getItem("securepipe_admin_key") || "";
+
+    function setStatus(message) {
+        document.getElementById("status").innerText = message;
+    }
+
+    function setLoginStatus(message) {
+        document.getElementById("loginStatus").innerText = message;
+    }
+
+    function safeText(value) {
+        if (value === null || value === undefined || value === "") {
+            return "-";
+        }
+        return String(value);
+    }
+
+    function escapeHtml(value) {
+        return safeText(value)
+            .replaceAll("&", "&amp;")
+            .replaceAll("<", "&lt;")
+            .replaceAll(">", "&gt;")
+            .replaceAll('"', "&quot;")
+            .replaceAll("'", "&#039;");
+    }
+
+    function formatDateTime(value) {
+        if (!value || value === "-") {
+            return "-";
+        }
+
+        return String(value);
+    }
+
+    function showDashboard() {
+        document.getElementById("loginCard").style.display = "none";
+        document.getElementById("dashboard").style.display = "block";
+    }
+
+    function showLogin() {
+        document.getElementById("loginCard").style.display = "block";
+        document.getElementById("dashboard").style.display = "none";
+    }
+
+    function handleAdminKeydown(event) {
+        if (event.key === "Enter") {
+            loginAdmin();
+        }
+    }
+
+    async function loginAdmin() {
+        const input = document.getElementById("adminKeyInput");
+        adminKey = input.value.trim();
+
+        if (!adminKey) {
+            setLoginStatus("Please enter the admin key.");
+            return;
+        }
+
+        sessionStorage.setItem("securepipe_admin_key", adminKey);
+
+        await loadDashboard(true);
+    }
+
+    function logoutAdmin() {
+        adminKey = "";
+        sessionStorage.removeItem("securepipe_admin_key");
+
+        document.getElementById("usersCount").innerText = "0";
+        document.getElementById("conversationsCount").innerText = "0";
+        document.getElementById("messagesCount").innerText = "0";
+
+        resetEvidenceCards();
+
+        document.getElementById("usersTableWrap").innerHTML = "";
+
+        showLogin();
+        setLoginStatus("Dashboard locked.");
+    }
+
+    function resetEvidenceCards() {
+        document.getElementById("evidenceFilesCount").innerText = "0";
+        document.getElementById("sensitiveRequestsCount").innerText = "0";
+        document.getElementById("mostDetectedType").innerText = "-";
+        document.getElementById("mostDetectedTypeCount").innerText = "0";
+        document.getElementById("latestEvidenceFile").innerText = "-";
+        document.getElementById("latestEvidenceTimestamp").innerText = "-";
+    }
+
+    function updateEvidenceCards(evidence) {
+        if (!evidence) {
+            resetEvidenceCards();
+            return;
+        }
+
+        document.getElementById("evidenceFilesCount").innerText =
+            safeText(evidence.evidence_files_count);
+
+        document.getElementById("sensitiveRequestsCount").innerText =
+            safeText(evidence.sensitive_requests_count);
+
+        document.getElementById("mostDetectedType").innerText =
+            safeText(evidence.most_detected_type);
+
+        document.getElementById("mostDetectedTypeCount").innerText =
+            safeText(evidence.most_detected_type_count);
+
+        document.getElementById("latestEvidenceFile").innerText =
+            safeText(evidence.latest_evidence_file);
+
+        document.getElementById("latestEvidenceTimestamp").innerText =
+            safeText(evidence.latest_evidence_timestamp);
+    }
+
+    function openEvidenceModal(title, jsonText) {
+        document.getElementById("evidenceModalTitle").innerText = title;
+        document.getElementById("evidenceJsonViewer").innerText = jsonText;
+        document.getElementById("evidenceModalBackdrop").style.display = "block";
+    }
+
+    function closeEvidenceModal() {
+        document.getElementById("evidenceModalBackdrop").style.display = "none";
+    }
+
+    async function openLatestEvidence() {
+        if (!adminKey) {
+            showLogin();
+            return;
+        }
+
+        setStatus("Opening latest evidence file...");
+
+        try {
+            const response = await fetch("/admin/evidence/latest", {
+                method: "GET",
+                headers: {
+                    "X-Admin-Key": adminKey
+                }
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.detail || "Could not open latest evidence.");
+            }
+
+            const formattedJson = JSON.stringify(data.evidence, null, 4);
+
+            openEvidenceModal(
+                "Latest Evidence: " + data.file_name,
+                formattedJson
+            );
+
+            setStatus("Latest evidence file opened successfully.");
+
+        } catch (error) {
+            setStatus("Error: " + error.message);
+        }
+    }
+
+    function renderUsersTable(users) {
+        const wrap = document.getElementById("usersTableWrap");
+
+        if (!users || users.length === 0) {
+            wrap.innerHTML = `<div class="empty">No users found.</div>`;
+            return;
+        }
+
+        let rows = "";
+
+        users.forEach(user => {
+            rows += `
+                <tr>
+                    <td>${escapeHtml(user.id)}</td>
+                    <td>${escapeHtml(user.username)}</td>
+                    <td>${escapeHtml(user.email)}</td>
+                    <td>${escapeHtml(formatDateTime(user.created_at))}</td>
+                    <td>
+                        <button
+                            class="delete-btn"
+                            onclick="deleteUser(${Number(user.id)}, '${escapeHtml(user.username)}')"
+                        >
+                            Delete
+                        </button>
+                    </td>
+                </tr>
+            `;
+        });
+
+        wrap.innerHTML = `
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Created At</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${rows}
+                </tbody>
+            </table>
+        `;
+    }
+
+    async function loadDashboard(fromLogin = false) {
+        if (!adminKey) {
+            showLogin();
+            return;
+        }
+
+        if (fromLogin) {
+            setLoginStatus("Checking admin key...");
+        } else {
+            setStatus("Loading admin dashboard...");
+        }
+
+        try {
+            const response = await fetch("/admin/dashboard", {
+                method: "GET",
+                headers: {
+                    "X-Admin-Key": adminKey
+                }
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.detail || "Could not load admin dashboard.");
+            }
+
+            document.getElementById("usersCount").innerText = data.users_count;
+            document.getElementById("conversationsCount").innerText = data.conversations_count;
+            document.getElementById("messagesCount").innerText = data.messages_count;
+
+            updateEvidenceCards(data.evidence);
+            renderUsersTable(data.users);
+
+            showDashboard();
+            setLoginStatus("");
+            setStatus("Dashboard loaded successfully.");
+        } catch (error) {
+            sessionStorage.removeItem("securepipe_admin_key");
+            adminKey = "";
+            showLogin();
+            setLoginStatus("Error: " + error.message);
+        }
+    }
+
+    async function deleteUser(userId, username) {
+        const confirmed = confirm(
+            `Are you sure you want to delete user "${username}"?\n\nThis will delete the user, conversations, and messages.`
+        );
+
+        if (!confirmed) {
+            return;
+        }
+
+        setStatus(`Deleting user ${userId}...`);
+
+        try {
+            const response = await fetch(`/admin/users/${userId}`, {
+                method: "DELETE",
+                headers: {
+                    "X-Admin-Key": adminKey
+                }
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.detail || "Could not delete user.");
+            }
+
+            setStatus(data.message);
+            await loadDashboard();
+
+        } catch (error) {
+            setStatus("Error: " + error.message);
+        }
+    }
+
+    async function clearTestData() {
+        const confirmed = confirm(
+            "Are you sure you want to delete ALL users, conversations, and messages?\n\nThis action is intended for test data cleanup."
+        );
+
+        if (!confirmed) {
+            return;
+        }
+
+        const secondConfirm = confirm(
+            "Final confirmation: this will clear all test data from the database."
+        );
+
+        if (!secondConfirm) {
+            return;
+        }
+
+        setStatus("Clearing all test data...");
+
+        try {
+            const response = await fetch("/admin/clear-test-data", {
+                method: "DELETE",
+                headers: {
+                    "X-Admin-Key": adminKey
+                }
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.detail || "Could not clear test data.");
+            }
+
+            setStatus(data.message);
+            await loadDashboard();
+
+        } catch (error) {
+            setStatus("Error: " + error.message);
+        }
+    }
+
+    loadDashboard();
+</script>
+</body>
+</html>
