@@ -38,11 +38,11 @@ This helps reduce the risk of exposing private information when using AI-powered
 
 ## 👥 Team Members
 
-| Name | Student ID | Role |
-|---|---:|---|
-| Yazan Alanazi | 221120003 | Project Leader |
-| Hamiza Matter | 221120320 | Team Member |
-| Saad Alarifi | 221129287 | Team Member |
+| Name | Role |
+|---|---|
+| Yazan Alanazi | Project Leader |
+| Hamiza Matter | Team Member |
+| Saad Alarifi | Team Member |
 
 ---
 
